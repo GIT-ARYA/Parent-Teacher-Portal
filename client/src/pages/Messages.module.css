@@ -1,0 +1,40 @@
+/* Messages.module.css */
+
+.page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #fef9c3 0%, #f1f5f9 45%, #e0f2fe 100%);
+  padding: 4rem 1.5rem 3rem;
+}
+
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  border-radius: 1.75rem;
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1.75rem 1.8rem 2rem;
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border-radius: 1.1rem;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(180deg, #f9fafb, #f1f5f9);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 12px 24px rgba(148, 163, 184, 0.3);
+  font-size: 0.9rem;
+  color: #0f172a;
+}

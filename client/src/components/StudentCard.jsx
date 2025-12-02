@@ -1,0 +1,66 @@
+// client/src/components/StudentCard.jsx
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './StudentCard.module.css';
+
+export default function StudentCard({ student }) {
+  const navigate = useNavigate();
+
+  if (!student) return null;
+
+  const initials = `${student.firstName?.[0] || ''}${student.lastName?.[0] || ''}`.toUpperCase();
+  const assignmentsCount = student.assignments?.length || 0;
+
+  // If you later compute real performance, plug it in here.
+  const performance = 0;
+
+  const openDetail = () => {
+    navigate(`/students/${student._id}`);
+  };
+
+  return (
+    <article className={styles.card}>
+      <div className={styles.rowTop}>
+        <div className={styles.left}>
+          <div className={styles.avatar}>{initials}</div>
+          <div className={styles.nameBlock}>
+            <div className={styles.name}>
+              {student.firstName} {student.lastName}
+            </div>
+            <div className={styles.meta}>
+              Class {student.className} • Roll {student.rollNumber}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.right}>
+          <div className={styles.assignLabel}>Assignments</div>
+          <div className={styles.assignCount}>{assignmentsCount}</div>
+        </div>
+      </div>
+
+      <div className={styles.rowBottom}>
+        <div className={styles.perfBlock}>
+          <div className={styles.perfLabel}>Performance</div>
+          <div className={styles.progressRow}>
+            <div className={styles.progressTrack}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${performance}%` }}
+              />
+            </div>
+            <span className={styles.perfValue}>{performance}%</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={openDetail}
+          className={styles.viewButton}
+        >
+          View
+        </button>
+      </div>
+    </article>
+  );
+}

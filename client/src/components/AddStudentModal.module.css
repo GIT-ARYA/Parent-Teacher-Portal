@@ -1,0 +1,166 @@
+/* AddStudentModal.module.css */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  border-radius: 1.75rem;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 1.75rem 1.9rem 1.6rem;
+  transform: translateY(8px) scale(0.97);
+  opacity: 0;
+  animation: modal-in 0.18s ease-out forwards;
+}
+
+@keyframes modal-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.pill {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(250, 204, 21, 0.16);
+  color: #92400e;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 0.9rem;
+}
+
+.rowFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: #64748b;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.input::placeholder {
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.input:focus {
+  border-color: #facc15;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.35);
+  background: #ffffff;
+}
+
+.footer {
+  margin-top: 1.3rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.btnCancel {
+  border-radius: 9999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.btnCancel:hover {
+  background: rgba(241, 245, 249, 0.8);
+}
+
+.btnPrimary {
+  border-radius: 9999px;
+  padding: 0.45rem 1.3rem;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  background: radial-gradient(circle at 20% 0, #fde68a, #fbbf24);
+  color: #0f172a;
+  font-weight: 600;
+  box-shadow: 0 12px 28px rgba(251, 191, 36, 0.65);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btnPrimary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 36px rgba(251, 191, 36, 0.75);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: default;
+  box-shadow: none;
+}
+
+.error {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    margin: 0 1rem;
+    padding: 1.5rem 1.4rem 1.4rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .rowFull {
+    grid-column: 1 / -1;
+  }
+}

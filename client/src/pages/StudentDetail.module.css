@@ -1,0 +1,231 @@
+/* client/src/pages/StudentDetail.module.css */
+
+.shell {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #fff6c2 0, #eef2ff 48%, #e4ecff 100%);
+  padding-top: 3.5rem; /* space for NavBar */
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* main card wrapper */
+.card {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 1.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 26px 80px rgba(15, 23, 42, 0.18);
+  padding: 2rem 2.25rem 2.25rem;
+}
+
+/* header row (name + back button) */
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.title {
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #020617;
+  margin: 0 0 0.15rem;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* yellow pill button */
+.primaryBtn {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  color: #111827;
+  box-shadow: 0 18px 40px rgba(251, 191, 36, 0.6);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 22px 52px rgba(251, 191, 36, 0.75);
+}
+
+.primaryBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 14px 32px rgba(251, 191, 36, 0.65);
+}
+
+/* quick actions row under header */
+.quickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0 1.4rem;
+}
+
+.chip {
+  border-radius: 9999px;
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f9fafb;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.chip:hover {
+  background: #fef9c3;
+  box-shadow: 0 10px 26px rgba(234, 179, 8, 0.45);
+  transform: translateY(-1px);
+}
+
+/* sections inside card */
+.subPanel {
+  margin-top: 1.7rem;
+  padding: 1.3rem 1.1rem 1.4rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.subTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.subHint {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.82rem;
+  color: #9ca3af;
+}
+
+/* assignments “table” */
+.table {
+  margin-top: 0.35rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: #ffffff;
+}
+
+.tableHead {
+  display: grid;
+  grid-template-columns: 3fr 1.4fr 1.4fr 1.2fr;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  background: #f8fafc;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 3fr 1.4fr 1.4fr 1.2fr;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  color: #0f172a;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.tableRow:nth-child(even) {
+  background: #f9fafb;
+}
+
+.muted {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* general empty text */
+.empty {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  padding: 0.4rem 0.1rem 0.1rem;
+}
+
+/* behaviour notes list */
+.notesList {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.noteCard {
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.noteBody {
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.noteMeta {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* responsive tweaks */
+@media (max-width: 900px) {
+  .main {
+    padding-inline: 1.25rem;
+  }
+  .card {
+    padding-inline: 1.5rem;
+  }
+  .tableHead,
+  .tableRow {
+    grid-template-columns: 3fr 1.6fr 1.6fr 1.3fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding-inline: 1rem;
+  }
+  .card {
+    padding: 1.4rem 1.25rem 1.6rem;
+  }
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tableHead,
+  .tableRow {
+    grid-template-columns: 2.2fr 1.3fr;
+    grid-auto-rows: auto;
+  }
+  .tableHead span:nth-child(3),
+  .tableHead span:nth-child(4),
+  .tableRow span:nth-child(3),
+  .tableRow span:nth-child(4) {
+    display: none;
+  }
+}

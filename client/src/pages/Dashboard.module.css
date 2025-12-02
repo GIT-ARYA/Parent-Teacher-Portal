@@ -1,0 +1,225 @@
+/* client/src/pages/Dashboard.module.css */
+
+.dashboardShell {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #fff6c2 0, #eef2ff 48%, #e4ecff 100%);
+  padding-top: 3.5rem; /* leaves space for NavBar */
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* --- Header / stats section --- */
+
+.headerSection {
+  padding: 1.75rem 2rem 2.25rem;
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  margin-bottom: 2rem;
+}
+
+.headerTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #020617;
+}
+
+.rolePill {
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.headerSubtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+/* Stats strip */
+
+.statsRow {
+  margin-top: 1.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.statCard {
+  padding: 1.1rem 1.1rem 1rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 16px 40px rgba(148, 163, 184, 0.25);
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.statValue {
+  margin-top: 0.3rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #020617;
+}
+
+.statHint {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.primaryAction {
+  align-self: stretch;
+  padding: 0 1.75rem;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  color: #111827;
+  box-shadow: 0 22px 45px rgba(251, 191, 36, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.primaryAction:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow: 0 26px 55px rgba(251, 191, 36, 0.7);
+}
+
+.primaryAction:active {
+  transform: translateY(0);
+  box-shadow: 0 16px 35px rgba(251, 191, 36, 0.6);
+}
+
+/* --- Generic “panel” cards for sections --- */
+
+.panel {
+  margin-top: 1.6rem;
+  padding: 1.75rem 2rem 1.8rem;
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panelTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.panelSubtitle {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+/* quick actions */
+
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.chipButton,
+.chipButtonGhost {
+  padding: 0.55rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: #f9fafb;
+  color: #111827;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.chipButton:hover {
+  background: #fff7c2;
+  box-shadow: 0 12px 28px rgba(234, 179, 8, 0.45);
+  transform: translateY(-1px);
+}
+
+.chipButtonGhost {
+  background: transparent;
+  color: #4b5563;
+  border-style: dashed;
+}
+
+.chipButtonGhost:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* simple empty state */
+
+.emptyState {
+  margin-top: 0.75rem;
+  padding: 1rem 0.25rem 0.2rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+/* responsive */
+
+@media (max-width: 900px) {
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+  }
+
+  .primaryAction {
+    margin-top: 0.5rem;
+    justify-self: stretch;
+  }
+
+  .panel,
+  .headerSection {
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .main {
+    padding-inline: 1rem;
+  }
+}
