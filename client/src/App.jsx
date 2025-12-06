@@ -2,9 +2,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/DashBoard';
 import Students from './pages/Students';
-import StudentDetail from './pages/StudentDetail';
+import StudentDetail from './pages/Studentdetail';
 import Messages from './pages/Messages';
 import { AuthProvider } from './context/AuthContext';
 import Assignments from './pages/Assignments';

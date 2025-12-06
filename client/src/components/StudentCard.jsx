@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './StudentCard.module.css';
 
-export default function StudentCard({ student }) {
+export default function StudentCard({ student, onDelete }) {
   const navigate = useNavigate();
 
   if (!student) return null;
@@ -53,13 +53,25 @@ export default function StudentCard({ student }) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={openDetail}
-          className={styles.viewButton}
-        >
-          View
-        </button>
+        <div className={styles.actionGroup}>
+          <button
+            type="button"
+            onClick={openDetail}
+            className={styles.viewButton}
+          >
+            View
+          </button>
+
+          {/* Delete button (new) */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); if (onDelete) onDelete(); }}
+            className={styles.deleteButton}
+            title="Remove student"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </article>
   );
