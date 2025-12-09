@@ -48,6 +48,7 @@ export default function StudentDetail() {
                 Class: {student.className} — Roll: {student.rollNumber}
               </p>
             </div>
+            
             <button
               type="button"
               onClick={() => navigate('/students')}

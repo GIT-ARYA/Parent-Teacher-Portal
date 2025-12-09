@@ -1,6 +1,7 @@
 // client/src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import NavBar from '../components/NavBar';
 import api from '../api/api';
 import styles from './Dashboard.module.css';
@@ -15,6 +16,30 @@ export default function Dashboard() {
     loading: true,
   });
 
+  const [teacherName, setTeacherName] = useState('');
+
+  useEffect(() => {
+    try {
+      // ✅ 1. Prefer name typed on login
+      const savedName = localStorage.getItem('displayName');
+      if (savedName) {
+        setTeacherName(savedName);
+        return;
+      }
+
+      // ✅ 2. Fallback to name from token (seeded user: Ms. Sharma)
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const decoded = jwtDecode(token);
+      if (decoded?.name) {
+        setTeacherName(decoded.name);
+      }
+    } catch (err) {
+      console.warn('Failed to decode teacher name:', err);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -22,7 +47,6 @@ export default function Dashboard() {
       try {
         const [studentsRes, assignmentsRes] = await Promise.all([
           api.get('/students'),
-          // if /assignments route doesn’t exist, this will just fall back to 0
           api.get('/assignments').catch(() => ({ data: [] })),
         ]);
 
@@ -39,7 +63,6 @@ export default function Dashboard() {
         setStats({
           students: studentsCount,
           assignments: assignmentsCount,
-          // meetings are a future feature – keep it simple for now
           meetings: 0,
           loading: false,
         });
@@ -61,11 +84,15 @@ export default function Dashboard() {
       <NavBar />
 
       <main className={styles.main}>
-        {/* Top header / stats section – FULL WIDTH, not one big centered card */}
         <section className={styles.headerSection}>
           <div>
             <div className={styles.headerTitleRow}>
-              <h1 className={styles.pageTitle}>Welcome back</h1>
+
+              {/* ✅ ONLY THIS LINE IS MODIFIED */}
+              <h1 className={styles.pageTitle}>
+                Welcome back{teacherName ? `, ${teacherName}` : ''}
+              </h1>
+
               <span className={styles.rolePill}>Teacher view</span>
             </div>
             <p className={styles.headerSubtitle}>
@@ -108,7 +135,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Quick access section */}
         <section className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>
@@ -144,7 +170,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Optional “Activity” stub – safe to extend later */}
         <section className={styles.panel}>
           <div className={styles.panelHeader}>
             <div>

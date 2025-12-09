@@ -8,6 +8,7 @@ import styles from "./Login.module.css";
 export default function Login() {
   const [email, setEmail] = useState("teacher@example.com");
   const [password, setPassword] = useState("teacher123");
+  const [fullName, setFullName] = useState("");   // ✅ NEW
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,6 +23,15 @@ export default function Login() {
     try {
       const res = await api.post("/auth/login", { email, password });
       login(res.data.token);
+
+      // ✅ Save the typed full name for later use on the dashboard
+      if (fullName.trim()) {
+        localStorage.setItem("displayName", fullName.trim());
+      } else {
+        // if empty, clear any old value
+        localStorage.removeItem("displayName");
+      }
+
       navigate("/dashboard");
     } catch (error) {
       setErr(
@@ -61,6 +71,8 @@ export default function Login() {
                   placeholder="Amélie Laurent"
                   className={styles.input}
                   autoComplete="name"
+                  value={fullName}                     // ✅ NEW
+                  onChange={(e) => setFullName(e.target.value)}  // ✅ NEW
                 />
               </div>
 
