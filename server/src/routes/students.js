@@ -67,5 +67,21 @@ router.get('/:id', auth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await Student.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    return res.json({ success: true, id });
+  } catch (err) {
+    console.error("Error deleting student:", err);
+    return res.status(500).json({ error: "Failed to delete student" });
+  }
+});
 
 module.exports = router;

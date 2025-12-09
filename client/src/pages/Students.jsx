@@ -44,87 +44,34 @@ export default function Students() {
   };
 
   const handleDelete = async (studentId) => {
-  const ok = window.confirm('Delete this student? This action cannot be undone.');
+  const ok = window.confirm(
+    "Delete this student? This action cannot be undone."
+  );
   if (!ok) return;
 
-  // copy in case we need to restore
-  const prevList = students.slice();
-  setDeletingId(studentId);
-  // optimistic UI remove while we check server — we'll restore if everything fails
-  setStudents(prev => prev.filter(s => s._id !== studentId));
+  // keep old list so we can restore if it fails
+  const previous = students;
 
-  // helper to attempt one endpoint and return { ok, res, error }
-  const tryEndpoint = async (method, url, config = {}) => {
-    try {
-      // show what we will call
-      // eslint-disable-next-line no-console
-      console.log(`[DELETE TRY] ${method.toUpperCase()} ${url}`, config);
-      // use api.request so we can test POST or DELETE easily
-      const r = await api.request({ method, url, ...config });
-      return { ok: true, res: r };
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn(`[DELETE FAIL] ${method.toUpperCase()} ${url}`, err?.response || err);
-      return { ok: false, error: err };
-    }
-  };
+  // optimistic remove
+  setStudents((prev) => prev.filter((s) => s._id !== studentId));
 
-  // list of candidate endpoints to try (in order). Adjust or remove ones that are irrelevant.
-  // Common patterns:
-  //  - DELETE /students/:id
-  //  - DELETE /api/students/:id
-  //  - POST   /students/:id/delete  (some backends use POST for destructive operations)
-  //  - POST   /students/delete (body: { id }) 
-  const candidates = [
-    { method: 'delete', url: `/students/${studentId}` },
-    { method: 'delete', url: `/api/students/${studentId}` },
-    { method: 'post',   url: `/students/${studentId}/delete` },
-    { method: 'post',   url: `/students/delete`, config: { data: { id: studentId } } },
-  ];
+  try {
+    // this becomes DELETE /api/students/:id because baseURL = "/api"
+    await api.delete(`/students/${studentId}`);
+    // success → nothing else to do
+  } catch (err) {
+    // restore list
+    setStudents(previous);
 
-  let succeeded = false;
-  let lastError = null;
-
-  for (const c of candidates) {
-    const { method, url, config } = c;
-    const result = await tryEndpoint(method, url, config || {});
-    if (result.ok) {
-      // check HTTP status too
-      const status = result.res?.status;
-      if (status >= 200 && status < 300) {
-        // success: leave UI updated and break
-        succeeded = true;
-        // eslint-disable-next-line no-console
-        console.log(`[DELETE OK] ${method.toUpperCase()} ${url} ->`, result.res.data);
-        break;
-      } else {
-        lastError = result.error || new Error(`Unexpected status ${status}`);
-      }
-    } else {
-      lastError = result.error;
-    }
-  }
-
-  if (!succeeded) {
-    // nothing worked — restore the list and show helpful info
-    setStudents(prevList);
-    // show message with server details if available
     const serverMsg =
-      lastError?.response?.data?.error ||
-      lastError?.response?.data?.message ||
-      lastError?.message ||
-      'Delete failed (no further details). Check backend routes and auth.';
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Delete failed.";
+
     alert(`Failed to delete student: ${serverMsg}`);
-
-    // open devtools network/console to inspect the failed requests
-    // eslint-disable-next-line no-console
-    console.error('Delete: lastError (full):', lastError);
-  } else {
-    // you may want to refresh counts, dashboard etc. Do it here if needed.
-    // Example: re-fetch counts or emit an event
+    console.error("Delete error:", err);
   }
-
-  setDeletingId(null);
 };
   return (
     <>
