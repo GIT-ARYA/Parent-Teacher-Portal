@@ -2,37 +2,47 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
-
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const t = localStorage.getItem('token');
-    if (!t) return null;
-    try { return jwtDecode(t); } catch { return null; }
-  });
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const onStorage = () => {
-      const t = localStorage.getItem('token');
-      setUser(t ? jwtDecode(t) : null);
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    try {
+      const decoded = jwtDecode(token);
 
-  const login = (token) => {
-    localStorage.setItem('token', token);
-    try { setUser(jwtDecode(token)); } catch { setUser(null); }
+      setUser({
+        id: decoded.id,
+        role: decoded.role,
+        name: decoded.name,
+        email: decoded.email || '',   // ✅ include email
+      });
+    } catch (err) {
+      console.error('Invalid token, clearing', err);
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+    }
+  }, [token]);
+
+  const login = (newToken) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
   };
+
   const logout = () => {
     localStorage.removeItem('token');
+    setToken(null);
     setUser(null);
-    window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

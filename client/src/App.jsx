@@ -8,6 +8,7 @@ import StudentDetail from './pages/Studentdetail';
 import Messages from './pages/Messages';
 import { AuthProvider } from './context/AuthContext';
 import Assignments from './pages/Assignments';
+import ParentDashboard from './pages/ParentDashboard'; 
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/students/:id" element={<StudentDetail />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/assignments" element={<Assignments />} />
+          <Route path="/parent-dashboard" element={<ParentDashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

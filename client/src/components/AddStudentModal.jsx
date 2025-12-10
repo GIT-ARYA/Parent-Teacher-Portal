@@ -31,11 +31,25 @@ export default function AddStudentModal({ open, onClose, onCreated }) {
     onClose?.();
   };
 
+  // simple seeded parent password generator (e.g. P-7G3K9Q2)
+  const generateParentPassword = () => {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let out = 'P-';
+    for (let i = 0; i < 7; i += 1) {
+      const idx = Math.floor(Math.random() * alphabet.length);
+      out += alphabet[idx];
+    }
+    return out;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErr('');
     setSaving(true);
+
     try {
+      const parentPassword = generateParentPassword();
+
       const payload = {
         firstName,
         lastName,
@@ -43,7 +57,9 @@ export default function AddStudentModal({ open, onClose, onCreated }) {
         rollNumber,
         parentName,
         parentEmail,
+        parentPassword,          // ✅ will be visible on student card / detail
       };
+
       const res = await api.post('/students', payload);
       onCreated?.(res.data);
       close();

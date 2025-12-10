@@ -18,6 +18,9 @@ export default function StudentCard({ student, onDelete }) {
     navigate(`/students/${student._id}`);
   };
 
+  const hasParentInfo =
+    student.parentName || student.parentEmail || student.parentPassword;
+
   return (
     <article className={styles.card}>
       <div className={styles.rowTop}>
@@ -30,6 +33,30 @@ export default function StudentCard({ student, onDelete }) {
             <div className={styles.meta}>
               Class {student.className} • Roll {student.rollNumber}
             </div>
+
+            {hasParentInfo && (
+              <div
+                style={{
+                  fontSize: '0.75rem',
+                  color: '#64748b',
+                  marginTop: '0.15rem',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '190px',
+                }}
+              >
+                Parent: {student.parentName || '—'} · {student.parentEmail || '—'}
+                {student.parentPassword && (
+                  <>
+                    {' '}· PW:{' '}
+                    <span style={{ fontFamily: 'monospace' }}>
+                      {student.parentPassword}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -62,10 +89,12 @@ export default function StudentCard({ student, onDelete }) {
             View
           </button>
 
-          {/* Delete button (new) */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); if (onDelete) onDelete(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onDelete) onDelete();
+            }}
             className={styles.deleteButton}
             title="Remove student"
           >

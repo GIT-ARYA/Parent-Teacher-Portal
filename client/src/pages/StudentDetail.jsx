@@ -34,6 +34,9 @@ export default function StudentDetail() {
     );
   }
 
+  const hasParentInfo =
+    student.parentName || student.parentEmail || student.parentPassword;
+
   return (
     <div className={styles.shell}>
       <NavBar />
@@ -48,7 +51,6 @@ export default function StudentDetail() {
                 Class: {student.className} — Roll: {student.rollNumber}
               </p>
             </div>
-            
             <button
               type="button"
               onClick={() => navigate('/students')}
@@ -129,6 +131,42 @@ export default function StudentDetail() {
               </div>
             ) : (
               <div className={styles.empty}>No behaviour notes.</div>
+            )}
+          </section>
+
+          {/* Parent / Guardian */}
+          <section className={styles.subPanel}>
+            <h2 className={styles.subTitle}>Parent / Guardian</h2>
+            <p className={styles.subHint}>
+              Contact details for this student&apos;s guardian.
+            </p>
+
+            {hasParentInfo ? (
+              <div className={styles.table}>
+                <div className={styles.tableHead}>
+                  <span>Field</span>
+                  <span>Details</span>
+                </div>
+                <div className={styles.tableRow}>
+                  <span>Name</span>
+                  <span>{student.parentName || '—'}</span>
+                </div>
+                <div className={styles.tableRow}>
+                  <span>Email</span>
+                  <span>{student.parentEmail || '—'}</span>
+                </div>
+                <div className={styles.tableRow}>
+                  <span>Parent password</span>
+                  <span style={{ fontFamily: 'monospace' }}>
+                    {student.parentPassword || '—'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.empty}>
+                No parent details stored. Add a guardian when creating / editing
+                this student.
+              </div>
             )}
           </section>
         </section>
