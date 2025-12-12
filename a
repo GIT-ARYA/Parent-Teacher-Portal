@@ -1,8 +1,0 @@
-[33m37c72cb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{0}: checkout: moving from f1b22a97966bfb970da680815ff9b8b7176c7c2c to master
-[33mf1b22a9[m HEAD@{1}: checkout: moving from master to f1b22a9
-[33m37c72cb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{2}: commit: bad commit
-[33m5a1539c[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{3}: commit: Added parent dashboard and parent section in the student details card. Currently stuck with forbidden issue and the no student shown in parent section issue.
-[33mf1b22a9[m HEAD@{4}: commit: Added User name on dashboard and working on parents dashboard
-[33m55d3861[m HEAD@{5}: commit: Added delete functionality
-[33m5b6b97a[m HEAD@{6}: commit: Added delete button
-[33m39987f6[m HEAD@{7}: commit (initial): Updated for proper visuals before adding messages and parent dashboard
