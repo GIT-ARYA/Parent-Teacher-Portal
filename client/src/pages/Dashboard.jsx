@@ -186,7 +186,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className={styles.emptyState}>
-            <p>No activity feed yet. You can add this later from the API.</p>
+            <p>No activity feed yet. You can add this later from the API</p>
           </div>
         </section>
       </main>
