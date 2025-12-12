@@ -20,14 +20,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     try {
-      // ✅ 1. Prefer name typed on login
       const savedName = localStorage.getItem('displayName');
       if (savedName) {
         setTeacherName(savedName);
         return;
       }
 
-      // ✅ 2. Fallback to name from token (seeded user: Ms. Sharma)
       const token = localStorage.getItem('token');
       if (!token) return;
 
@@ -87,12 +85,9 @@ export default function Dashboard() {
         <section className={styles.headerSection}>
           <div>
             <div className={styles.headerTitleRow}>
-
-              {/* ✅ ONLY THIS LINE IS MODIFIED */}
               <h1 className={styles.pageTitle}>
                 Welcome back{teacherName ? `, ${teacherName}` : ''}
               </h1>
-
               <span className={styles.rolePill}>Teacher view</span>
             </div>
             <p className={styles.headerSubtitle}>
@@ -153,6 +148,16 @@ export default function Dashboard() {
             >
               View students
             </button>
+
+            {/* ✅ NEW: Assignments quick access */}
+            <button
+              type="button"
+              className={styles.chipButton}
+              onClick={() => navigate('/assignments')}
+            >
+              View assignments
+            </button>
+
             <button
               type="button"
               className={styles.chipButton}
@@ -160,6 +165,7 @@ export default function Dashboard() {
             >
               Open messages
             </button>
+
             <button
               type="button"
               className={styles.chipButtonGhost}

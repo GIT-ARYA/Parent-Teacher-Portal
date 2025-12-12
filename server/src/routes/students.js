@@ -1,16 +1,18 @@
-// server/src/routes/students.js
 const express = require('express');
 const Student = require('../models/Student');
-const { auth, requireRole } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 const router = express.Router();
 
 /**
  * POST /api/students
  * Create a student (teacher or admin)
- * Body: { firstName, lastName, className, rollNumber, dob, guardians: [guardianId,...] }
  */
-router.post('/', auth, requireRole('teacher'), async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
+    if (!['teacher', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const payload = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -19,8 +21,9 @@ router.post('/', auth, requireRole('teacher'), async (req, res) => {
       dob: req.body.dob ? new Date(req.body.dob) : undefined,
       guardians: req.body.guardians || []
     };
-    const s = await Student.create(payload);
-    res.json(s);
+
+    const student = await Student.create(payload);
+    res.json(student);
   } catch (err) {
     console.error('Create student error', err);
     res.status(500).json({ error: 'Server error' });
@@ -29,8 +32,6 @@ router.post('/', auth, requireRole('teacher'), async (req, res) => {
 
 /**
  * GET /api/students
- * List students with optional filters:
- * ?className=7A&guardianId=<id>&behaviourTag=<tag>
  */
 router.get('/', auth, async (req, res) => {
   try {
@@ -53,34 +54,37 @@ router.get('/', auth, async (req, res) => {
 
 /**
  * GET /api/students/:id
- * Get student detail
  */
 router.get('/:id', auth, async (req, res) => {
   try {
-    const s = await Student.findById(req.params.id)
+    const student = await Student.findById(req.params.id)
       .populate('guardians', 'name email')
       .populate('assignments');
-    if (!s) return res.status(404).json({ error: 'Not found' });
-    res.json(s);
+
+    if (!student) return res.status(404).json({ error: 'Not found' });
+    res.json(student);
   } catch (err) {
     console.error('Get student error', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
-router.delete("/:id", async (req, res) => {
+
+/**
+ * DELETE /api/students/:id
+ */
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const deleted = await Student.findByIdAndDelete(id);
-
-    if (!deleted) {
-      return res.status(404).json({ error: "Student not found" });
+    if (!['teacher', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
 
-    return res.json({ success: true, id });
+    const deleted = await Student.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Student not found' });
+
+    res.json({ success: true, id: req.params.id });
   } catch (err) {
-    console.error("Error deleting student:", err);
-    return res.status(500).json({ error: "Failed to delete student" });
+    console.error('Delete student error:', err);
+    res.status(500).json({ error: 'Failed to delete student' });
   }
 });
 
