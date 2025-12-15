@@ -1,40 +1,148 @@
-/* Messages.module.css */
-
+/* PAGE BACKGROUND – LIGHT & JOYFUL */
 .page {
   min-height: 100vh;
-  background: radial-gradient(circle at top left, #fef9c3 0%, #f1f5f9 45%, #e0f2fe 100%);
-  padding: 4rem 1.5rem 3rem;
+  background:
+    radial-gradient(
+      1200px 600px at 50% -10%,
+      #fff7ed 0%,
+      #fef3c7 35%,
+      #fde68a 55%,
+      #f5e6a8 75%,
+      #f3e2a0 100%
+    );
 }
-
-.main {
-  max-width: 1120px;
+.wrapper {
+  max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #ffffff, #f9fafb);
-  border-radius: 1.75rem;
-  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.1);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 1.75rem 1.8rem 2rem;
+  padding: 2.5rem 1.5rem;
 }
 
-.headerRow {
+/* BIG WHATSAPP-LIKE CONTAINER */
+.shell {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(248, 250, 252, 0.96)
+  );
+  border-radius: 32px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 520px;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  padding: 1.6rem;
+  border-right: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sidebarHeader h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sidebarHeader p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.sidebarHint {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* THREAD LIST */
+.threadList {
+  margin-top: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1.5rem;
+  gap: 0.6rem;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
+.threadItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
 }
 
-.card {
-  border-radius: 1.1rem;
-  padding: 1rem 1.1rem;
-  background: linear-gradient(180deg, #f9fafb, #f1f5f9);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 12px 24px rgba(148, 163, 184, 0.3);
-  font-size: 0.9rem;
+.threadItem:hover {
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.active {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.threadMeta {
+  flex: 1;
+}
+
+.threadName {
+  font-weight: 600;
   color: #0f172a;
+}
+
+.threadSub {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* CONVERSATION */
+.conversation {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.conversationHeader h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.conversationHeader p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.emptyState {
+  margin: auto;
+  text-align: center;
+}
+
+.emptyState h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.emptyState p {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+  color: #64748b;
 }

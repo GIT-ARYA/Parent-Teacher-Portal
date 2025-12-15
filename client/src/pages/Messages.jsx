@@ -1,49 +1,106 @@
-// client/src/pages/Messages.jsx
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import NavBar from '../components/NavBar';
+import api from '../api/api';
 import styles from './Messages.module.css';
+import { AuthContext } from '../context/AuthContext';
 
 export default function Messages() {
-  return (
-    <div className={styles.shell}>
-      <NavBar />
-      <main className={styles.main}>
-        <section className={styles.card}>
-          <header className={styles.headerRow}>
-            <div>
-              <h1 className={styles.title}>Messages</h1>
-              <p className={styles.subtitle}>
-                Communication between teachers and parents (UI ready, backend can
-                be wired next).
-              </p>
-            </div>
-          </header>
+  const { user } = useContext(AuthContext);
 
-          <div className={styles.grid}>
-            <div className={styles.infoCard}>
-              <h2 className={styles.infoTitle}>Threads</h2>
-              <p className={styles.infoText}>
-                No threads yet — once you connect this to the <code>/messages</code>{' '}
-                API, recent conversations can appear here.
-              </p>
+  const [threads, setThreads] = useState([]);
+  const [selectedThread, setSelectedThread] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadThreads() {
+      try {
+        const res = await api.get('/messages');
+        if (!cancelled) setThreads(res.data || []);
+      } catch (e) {
+        console.error('Failed to load threads', e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadThreads();
+    return () => (cancelled = true);
+  }, []);
+
+  return (
+  <>
+    <NavBar />
+
+    <div className={styles.page}>
+      <div className={styles.wrapper}>
+        <div className={styles.shell}>
+          {/* Sidebar */}
+          <aside className={styles.sidebar}>
+            <div className={styles.sidebarHeader}>
+              <h2>Messages</h2>
+              <p>Parents & teachers</p>
             </div>
-            <div className={styles.infoCard}>
-              <h2 className={styles.infoTitle}>New message</h2>
-              <p className={styles.infoText}>
-                You can add a modal that lets you pick a student / guardian and
-                send them a message.
-              </p>
-            </div>
-            <div className={styles.infoCard}>
-              <h2 className={styles.infoTitle}>Realtime chat</h2>
-              <p className={styles.infoText}>
-                If you want live messaging, you can later integrate Socket.IO or
-                a service like Pusher on top of this layout.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
+
+            {loading ? (
+              <div className={styles.sidebarHint}>Loading…</div>
+            ) : threads.length === 0 ? (
+              <div className={styles.sidebarHint}>
+                No conversations yet.
+              </div>
+            ) : (
+              <div className={styles.threadList}>
+                {threads.map((t) => (
+                  <button
+                    key={t._id}
+                    className={`${styles.threadItem} ${
+                      selectedThread?._id === t._id ? styles.active : ''
+                    }`}
+                    onClick={() => setSelectedThread(t)}
+                  >
+                    <div className={styles.avatar}>
+                      {t.student?.firstName?.[0]}
+                      {t.student?.lastName?.[0]}
+                    </div>
+
+                    <div className={styles.threadMeta}>
+                      <div className={styles.threadName}>
+                        {t.student?.firstName} {t.student?.lastName}
+                      </div>
+                      <div className={styles.threadSub}>
+                        Class {t.student?.className}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </aside>
+
+          {/* Conversation */}
+          <section className={styles.conversation}>
+            {!selectedThread ? (
+              <div className={styles.emptyState}>
+                <h3>Select a conversation</h3>
+                <p>Choose a student thread to view messages.</p>
+              </div>
+            ) : (
+              <div className={styles.conversationHeader}>
+                <h3>
+                  {selectedThread.student?.firstName}{' '}
+                  {selectedThread.student?.lastName}
+                </h3>
+                <p>
+                  Class {selectedThread.student?.className} · Roll{' '}
+                  {selectedThread.student?.rollNumber}
+                </p>
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
     </div>
-  );
+  </>
+);
 }
