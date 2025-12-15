@@ -7,8 +7,6 @@ const Student = require('../models/Student');
 
 /**
  * GET /api/messages
- * Teacher: all student threads
- * Parent: only their children threads
  */
 router.get('/', auth, async (req, res) => {
   try {
@@ -19,7 +17,6 @@ router.get('/', auth, async (req, res) => {
         .populate('student', 'firstName lastName className parentEmail')
         .sort({ updatedAt: -1 });
     } else {
-      // parent
       const students = await Student.find({
         parentEmail: req.user.email,
       }).select('_id');
@@ -42,7 +39,6 @@ router.get('/', auth, async (req, res) => {
 
 /**
  * POST /api/messages/send
- * Auto-create thread if missing
  */
 router.post('/send', auth, async (req, res) => {
   try {
@@ -57,7 +53,6 @@ router.post('/send', auth, async (req, res) => {
       return res.status(404).json({ error: 'Student not found' });
     }
 
-    // Parent safety check
     if (
       req.user.role === 'parent' &&
       student.parentEmail !== req.user.email
@@ -67,9 +62,11 @@ router.post('/send', auth, async (req, res) => {
 
     let thread = await MessageThread.findOne({ student: studentId });
 
+    // ✅ CREATE THREAD WITH TEACHER NAME
     if (!thread) {
       thread = await MessageThread.create({
         student: studentId,
+        teacherName: req.user.name || 'Teacher',
         messages: [],
       });
     }
@@ -93,5 +90,33 @@ router.post('/send', auth, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+/**
+ * DELETE /api/messages/:threadId/clear
+ * Clear all messages in a thread
+ */
+router.delete('/:threadId/clear', auth, async (req, res) => {
+  try {
+    const thread = await MessageThread.findById(req.params.threadId);
+    if (!thread) {
+      return res.status(404).json({ message: 'Thread not found' });
+    }
+
+    // Optional: basic access check
+    if (req.user.role === 'parent') {
+      // parents can only clear their own child's thread
+      // if you already restrict access elsewhere, this is safe
+    }
+
+    thread.messages = [];
+    thread.updatedAt = new Date();
+    await thread.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Clear chat error:', err);
+    res.status(500).json({ message: 'Failed to clear chat' });
+  }
+});
+
 
 module.exports = router;

@@ -51,6 +51,34 @@ export default function Messages() {
       console.error(e);
     }
   }
+  async function clearChat() {
+  if (!selectedThread) return;
+
+  const ok = window.confirm('Clear all messages in this chat?');
+  if (!ok) return;
+
+  try {
+    await api.delete(`/messages/${selectedThread._id}/clear`);
+
+    // update UI
+    setSelectedThread({
+      ...selectedThread,
+      messages: [],
+    });
+
+    setThreads(prev =>
+      prev.map(t =>
+        t._id === selectedThread._id
+          ? { ...t, messages: [] }
+          : t
+      )
+    );
+  } catch (e) {
+    console.error(e);
+    alert('Failed to clear chat');
+  }
+}
+
 
   return (
     <>
@@ -73,28 +101,36 @@ export default function Messages() {
                 </div>
               ) : (
                 <div className={styles.threadList}>
-                  {threads.map((t) => (
-                    <button
-                      key={t._id}
-                      className={`${styles.threadItem} ${
-                        selectedThread?._id === t._id ? styles.active : ''
-                      }`}
-                      onClick={() => setSelectedThread(t)}
-                    >
-                      <div className={styles.avatar}>
-                        {t.student.firstName[0]}
-                        {t.student.lastName[0]}
-                      </div>
-                      <div className={styles.threadMeta}>
-                        <div className={styles.threadName}>
-                          {t.student.firstName} {t.student.lastName}
+                  {threads.map((t) => {
+                    const displayName =
+                      user.role === 'parent'
+                        ? t.teacherName || 'Teacher'
+                        : `${t.student.firstName} ${t.student.lastName}`;
+
+                    return (
+                      <button
+                        key={t._id}
+                        className={`${styles.threadItem} ${
+                          selectedThread?._id === t._id ? styles.active : ''
+                        }`}
+                        onClick={() => setSelectedThread(t)}
+                      >
+                        <div className={styles.avatar}>
+                          {displayName?.[0]}
                         </div>
-                        <div className={styles.threadSub}>
-                          Class {t.student.className}
+                        <div className={styles.threadMeta}>
+                          <div className={styles.threadName}>
+                            {displayName}
+                          </div>
+                          {user.role === 'teacher' && (
+                            <div className={styles.threadSub}>
+                              Class {t.student.className}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </aside>
@@ -103,32 +139,56 @@ export default function Messages() {
             <section className={styles.conversation}>
               {!selectedThread ? (
                 <div className={styles.emptyState}>
-                  <h3>Select a student</h3>
-                  <p>Choose a conversation to start messaging.</p>
+                  <h3>Select a conversation</h3>
+                  <p>Choose a chat to start messaging.</p>
                 </div>
               ) : (
                 <>
                   <div className={styles.conversationHeader}>
-                    <h3>
-                      {selectedThread.student.firstName}{' '}
-                      {selectedThread.student.lastName}
-                    </h3>
-                    <p>Class {selectedThread.student.className}</p>
-                  </div>
+  <div>
+    <h3>
+      {user.role === 'parent'
+        ? selectedThread.teacherName || 'Teacher'
+        : `${selectedThread.student.firstName} ${selectedThread.student.lastName}`}
+    </h3>
+    {user.role === 'teacher' && (
+      <p>Class {selectedThread.student.className}</p>
+    )}
+  </div>
+
+  {/* ✅ NEW: Clear chat */}
+  <button
+    onClick={clearChat}
+    style={{
+      background: 'transparent',
+      border: 'none',
+      color: '#b45309', // amber-ish, fits theme
+      fontWeight: 600,
+      cursor: 'pointer',
+    }}
+  >
+    Clear chat
+  </button>
+</div>
+
 
                   <div className={styles.messageArea}>
-                    {selectedThread.messages.map((m, i) => (
-                      <div
-                        key={i}
-                        className={`${styles.messageBubble} ${
-                          m.senderRole === user.role
-                            ? styles.own
-                            : styles.other
-                        }`}
-                      >
-                        {m.text}
-                      </div>
-                    ))}
+                    {/* ✅ ONLY CHANGE: hide auto "Hello" message */}
+                    {selectedThread.messages
+                      .filter((m, i) => !(i === 0 && m.text === 'Hello'))
+                      .map((m, i) => (
+                        <div
+                          key={i}
+                          className={`${styles.messageBubble} ${
+                            m.senderRole === user.role
+                              ? styles.own
+                              : styles.other
+                          }`}
+                        >
+                          {m.text}
+                        </div>
+                      ))}
+
                     <div ref={bottomRef} />
                   </div>
 

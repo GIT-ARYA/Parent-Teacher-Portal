@@ -22,8 +22,15 @@ const messageThreadSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Student',
       required: true,
-      unique: true, // 🔥 one thread per student
+      unique: true, // one thread per student
     },
+
+    // ✅ NEW: teacher display name (stored once)
+    teacherName: {
+  type: String,
+  default: '',
+},
+
     messages: [messageSchema],
   },
   { timestamps: true }
