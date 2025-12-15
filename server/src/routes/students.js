@@ -7,7 +7,8 @@ const { auth } = require('../middleware/auth');
 const router = express.Router();
 
 /**
- * CREATE STUDENT + ENSURE PARENT LOGIN WORKS
+ * CREATE STUDENT
+ * Ensures parent user + guardian link ALWAYS exist
  */
 router.post('/', auth, async (req, res) => {
   try {
@@ -28,7 +29,7 @@ router.post('/', auth, async (req, res) => {
 
     let parentUser = null;
 
-    // 🔐 ALWAYS sync parent user
+    // 🔐 Ensure parent user always exists & matches shown password
     if (parentEmail && parentPassword) {
       parentUser = await User.findOne({ email: parentEmail });
 
@@ -42,7 +43,7 @@ router.post('/', auth, async (req, res) => {
           role: 'parent',
         });
       } else {
-        // 🔁 update password so login always matches shown password
+        // keep login credentials in sync
         parentUser.passwordHash = passwordHash;
         await parentUser.save();
       }
@@ -55,7 +56,7 @@ router.post('/', auth, async (req, res) => {
       rollNumber,
       dob: dob ? new Date(dob) : undefined,
 
-      // UI-required fields (unchanged)
+      // existing UI fields (unchanged)
       parentName,
       parentEmail,
       parentPassword,
@@ -72,27 +73,55 @@ router.post('/', auth, async (req, res) => {
 
 /**
  * GET STUDENTS
- * Parent sees ONLY their children
+ * Parent sees only their children
+ * Auto-fixes old students missing guardian links
  */
 router.get('/', auth, async (req, res) => {
   try {
-    const query = {};
+    let students;
 
     if (req.user.role === 'parent') {
-      query.guardians = req.user._id;
+      students = await Student.find({ guardians: req.user._id });
+    } else {
+      students = await Student.find({});
     }
 
-    const students = await Student.find(query)
+    // 🔁 Auto-heal legacy students (NO UI change)
+    for (const student of students) {
+      if (
+        student.parentEmail &&
+        (!student.guardians || student.guardians.length === 0)
+      ) {
+        const parentUser = await User.findOne({
+          email: student.parentEmail,
+          role: 'parent',
+        });
+
+        if (parentUser) {
+          student.guardians = [parentUser._id];
+          await student.save();
+        }
+      }
+    }
+
+    const populated = await Student.find(
+      req.user.role === 'parent'
+        ? { guardians: req.user._id }
+        : {}
+    )
       .populate('guardians', 'name email')
       .populate('assignments');
 
-    res.json(students);
+    res.json(populated);
   } catch (err) {
     console.error('List students error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
+/**
+ * GET SINGLE STUDENT
+ */
 router.get('/:id', auth, async (req, res) => {
   const student = await Student.findById(req.params.id)
     .populate('guardians', 'name email')
@@ -102,6 +131,9 @@ router.get('/:id', auth, async (req, res) => {
   res.json(student);
 });
 
+/**
+ * DELETE STUDENT
+ */
 router.delete('/:id', auth, async (req, res) => {
   if (!['teacher', 'admin'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Forbidden' });

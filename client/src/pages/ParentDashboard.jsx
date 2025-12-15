@@ -4,12 +4,13 @@ import NavBar from '../components/NavBar';
 import api from '../api/api';
 import layout from '../styles/PageLayout.module.css';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function ParentDashboard() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [children, setChildren] = useState([]);
-  const [activeChild, setActiveChild] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,8 +21,13 @@ export default function ParentDashboard() {
         const res = await api.get('/students');
         if (cancelled) return;
 
-        setChildren(res.data || []);
-        setActiveChild(res.data?.[0] || null);
+        const email = (user?.email || '').toLowerCase();
+
+        const filtered = res.data.filter(
+          (s) => (s.parentEmail || '').toLowerCase() === email
+        );
+
+        setChildren(filtered);
       } catch (e) {
         console.error('Failed to load children', e);
         setChildren([]);
@@ -30,7 +36,7 @@ export default function ParentDashboard() {
       }
     }
 
-    if (user) {
+    if (user && user.email) {
       loadChildren();
     } else {
       setLoading(false);
@@ -48,6 +54,7 @@ export default function ParentDashboard() {
       <NavBar />
       <div className={layout.root}>
         <div className={layout.pageShell}>
+          {/* Header */}
           <header className={layout.pageHeader}>
             <div>
               <div className={layout.pageTitle}>
@@ -58,70 +65,133 @@ export default function ParentDashboard() {
                 progress, assignments and behaviour.
               </p>
             </div>
-            <span className={layout.rolePill}>Parent view</span>
+
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              {/* ✅ NEW BUTTON (SAFE ADDITION) */}
+              <button
+                className={layout.primaryBtn}
+                onClick={() => navigate('/messages')}
+              >
+                Messages
+              </button>
+
+              <span className={layout.rolePill}>
+                Parent view
+              </span>
+            </div>
           </header>
 
+          {/* Body */}
           <main className={layout.pageBody}>
             <section className={layout.sectionCard}>
+              <div className={layout.sectionHeaderRow}>
+                <div>
+                  <div className={layout.sectionTitle}>
+                    {children.length === 1 ? 'Your child' : 'Your children'}
+                  </div>
+                  <div className={layout.sectionHint}>
+                    Overview of their current class and assignments.
+                  </div>
+                </div>
+              </div>
+
               {loading ? (
-                <div style={{ padding: '0.75rem', color: '#475569' }}>
+                <div
+                  style={{
+                    padding: '0.75rem',
+                    fontSize: '0.9rem',
+                    color: '#475569',
+                  }}
+                >
                   Loading…
                 </div>
               ) : children.length === 0 ? (
-                <div style={{ padding: '0.75rem', color: '#94a3b8' }}>
-                  No linked student records found.
+                <div
+                  style={{
+                    padding: '0.75rem',
+                    fontSize: '0.9rem',
+                    color: '#94a3b8',
+                  }}
+                >
+                  No linked student records found for this parent account.
                 </div>
               ) : (
-                <>
-                  {children.length > 1 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                      {children.map((c) => (
-                        <button
-                          key={c._id}
-                          onClick={() => setActiveChild(c)}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                    gap: '1rem',
+                    marginTop: '1rem',
+                  }}
+                >
+                  {children.map((c) => (
+                    <button
+                      key={c._id}
+                      type="button"
+                      onClick={() => navigate(`/students/${c._id}`)}
+                      style={{
+                        textAlign: 'left',
+                        borderRadius: '16px',
+                        padding: '0.9rem 1rem',
+                        border: '1px solid rgba(148,163,184,0.3)',
+                        background:
+                          'linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))',
+                        boxShadow: '0 10px 25px rgba(15,23,42,0.08)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div
                           style={{
-                            padding: '0.4rem 0.9rem',
+                            width: '40px',
+                            height: '40px',
                             borderRadius: '999px',
-                            border:
-                              activeChild?._id === c._id
-                                ? '1px solid #0f172a'
-                                : '1px solid rgba(148,163,184,0.4)',
                             background:
-                              activeChild?._id === c._id
-                                ? '#0f172a'
-                                : 'white',
-                            color:
-                              activeChild?._id === c._id
-                                ? 'white'
-                                : '#0f172a',
+                              'linear-gradient(135deg, #fbbf24 0%, #f97316 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontWeight: 700,
                           }}
                         >
-                          {c.firstName}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                          {c.firstName?.[0]}
+                          {c.lastName?.[0]}
+                        </div>
 
-                  {activeChild && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <strong>
-                        <div
-  style={{
-    fontWeight: 600,
-    color: '#0f172a', // slate-900 (used elsewhere)
-    fontSize: '1rem',
-  }}
->
-  {activeChild.firstName} {activeChild.lastName}
-</div>
-
-                      </strong>
-                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
-                        Class {activeChild.className} · Roll {activeChild.rollNumber}
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              fontWeight: 600,
+                              color: '#0f172a',
+                            }}
+                          >
+                            {c.firstName} {c.lastName}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: '0.8rem',
+                              color: '#64748b',
+                              marginTop: '0.1rem',
+                            }}
+                          >
+                            Class {c.className} · Roll {c.rollNumber}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </>
+
+                      <div
+                        style={{
+                          fontSize: '0.8rem',
+                          color: '#64748b',
+                          marginTop: '0.6rem',
+                        }}
+                      >
+                        Assignments: {c.assignments?.length || 0}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
             </section>
           </main>

@@ -1,17 +1,32 @@
-// server/src/models/MessageThread.js
 const mongoose = require('mongoose');
 
-const MessageSchema = new mongoose.Schema({
-  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  body: { type: String },
-  timestamp: { type: Date, default: Date.now },
-  readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
-}, { _id: false });
+const messageSchema = new mongoose.Schema({
+  senderRole: {
+    type: String,
+    enum: ['teacher', 'parent'],
+    required: true,
+  },
+  text: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-const ThreadSchema = new mongoose.Schema({
-  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-  messages: [MessageSchema]
-}, { timestamps: true });
+const messageThreadSchema = new mongoose.Schema(
+  {
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Student',
+      required: true,
+      unique: true, // 🔥 one thread per student
+    },
+    messages: [messageSchema],
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('MessageThread', ThreadSchema);
+module.exports = mongoose.model('MessageThread', messageThreadSchema);

@@ -10,11 +10,13 @@ const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
 const assignmentRoutes = require('./routes/assignments');
 const messageRoutes = require('./routes/messages');
+const userRoutes = require('./routes/users');
+
 
 const { auth } = require('./middleware/auth'); // require auth AFTER models/routes are set up if needed
 
 const app = express(); // <-- app must be created before adding routes
-
+app.use('/api/users', userRoutes);
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json());
