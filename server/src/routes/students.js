@@ -8,7 +8,7 @@ const router = express.Router();
 
 /**
  * POST /api/students
- * Create student + auto-create parent account
+ * Teacher/Admin: create student + parent account
  */
 router.post('/', auth, async (req, res) => {
   try {
@@ -29,7 +29,7 @@ router.post('/', auth, async (req, res) => {
 
     let parentUser = null;
 
-    // ✅ Create / reuse parent account
+    // Create / reuse parent account
     if (parentEmail && parentPassword) {
       parentUser = await User.findOne({ email: parentEmail });
 
@@ -45,7 +45,6 @@ router.post('/', auth, async (req, res) => {
       }
     }
 
-    // ✅ Create student (KEEP existing fields for UI)
     const student = await Student.create({
       firstName,
       lastName,
@@ -53,12 +52,12 @@ router.post('/', auth, async (req, res) => {
       rollNumber,
       dob: dob ? new Date(dob) : undefined,
 
-      // existing UI-dependent fields (DO NOT REMOVE)
+      // these are REQUIRED by your existing UI
       parentName,
       parentEmail,
       parentPassword,
 
-      // real relationship
+      // real link for parent access
       guardians: parentUser ? [parentUser._id] : [],
     });
 
@@ -71,17 +70,25 @@ router.post('/', auth, async (req, res) => {
 
 /**
  * GET /api/students
+ * Teacher/Admin: all students
+ * Parent: ONLY their children
  */
 router.get('/', auth, async (req, res) => {
   try {
-    const students = await Student.find()
-      .limit(500)
+    const query = {};
+
+    // 🔐 parent can see ONLY linked students
+    if (req.user.role === 'parent') {
+      query.guardians = req.user._id;
+    }
+
+    const students = await Student.find(query)
       .populate('guardians', 'name email')
       .populate('assignments');
 
     res.json(students);
   } catch (err) {
-    console.error('List students error', err);
+    console.error('List students error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -98,7 +105,7 @@ router.get('/:id', auth, async (req, res) => {
     if (!student) return res.status(404).json({ error: 'Not found' });
     res.json(student);
   } catch (err) {
-    console.error('Get student error', err);
+    console.error('Get student error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -115,7 +122,7 @@ router.delete('/:id', auth, async (req, res) => {
     const deleted = await Student.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Student not found' });
 
-    res.json({ success: true, id: req.params.id });
+    res.json({ success: true });
   } catch (err) {
     console.error('Delete student error:', err);
     res.status(500).json({ error: 'Failed to delete student' });
