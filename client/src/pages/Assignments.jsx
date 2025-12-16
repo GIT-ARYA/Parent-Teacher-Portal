@@ -17,7 +17,7 @@ export default function Assignments() {
     subject: '',
     description: '',
     dueDate: '',
-    maxMarks: ''
+    maxMarks: '',
   });
 
   const [assignAll, setAssignAll] = useState(false);
@@ -53,7 +53,7 @@ export default function Assignments() {
 
     await api.post('/assignments', {
       ...form,
-      studentIds
+      studentIds,
     });
 
     setShowModal(false);
@@ -65,7 +65,7 @@ export default function Assignments() {
       subject: '',
       description: '',
       dueDate: '',
-      maxMarks: ''
+      maxMarks: '',
     });
 
     fetchAssignments();
@@ -154,49 +154,74 @@ export default function Assignments() {
           <div className={styles.modal}>
             {step === 1 && (
               <>
-                <h2 className={styles.modalTitle}>Assignment details</h2>
+                <div className={styles.headerRow}>
+                  <div>
+                    <div className={styles.modalTitle}>Assignment details</div>
+                    <div className={styles.modalSubtitle}>
+                      Create a new assignment with subject, description and marks.
+                    </div>
+                  </div>
+                  <div className={styles.pill}>New</div>
+                </div>
 
-                <label>Title</label>
-                <input
-                  value={form.title}
-                  onChange={e =>
-                    setForm({ ...form, title: e.target.value })
-                  }
-                />
+                <div className={styles.formGrid}>
+                  <div className={styles.rowFull}>
+                    <label className={styles.label}>Title</label>
+                    <input
+                      className={styles.input}
+                      value={form.title}
+                      onChange={e =>
+                        setForm({ ...form, title: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <label>Subject</label>
-                <input
-                  value={form.subject}
-                  onChange={e =>
-                    setForm({ ...form, subject: e.target.value })
-                  }
-                />
+                  <div className={styles.rowFull}>
+                    <label className={styles.label}>Subject</label>
+                    <input
+                      className={styles.input}
+                      value={form.subject}
+                      onChange={e =>
+                        setForm({ ...form, subject: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <label>Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={e =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                />
+                  <div className={styles.rowFull}>
+                    <label className={styles.label}>Description</label>
+                    <textarea
+                      className={styles.textarea}
+                      value={form.description}
+                      onChange={e =>
+                        setForm({ ...form, description: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <label>Due date</label>
-                <input
-                  type="date"
-                  value={form.dueDate}
-                  onChange={e =>
-                    setForm({ ...form, dueDate: e.target.value })
-                  }
-                />
+                  <div>
+                    <label className={styles.label}>Due date</label>
+                    <input
+                      type="date"
+                      className={styles.input}
+                      value={form.dueDate}
+                      onChange={e =>
+                        setForm({ ...form, dueDate: e.target.value })
+                      }
+                    />
+                  </div>
 
-                <label>Max marks</label>
-                <input
-                  type="number"
-                  value={form.maxMarks}
-                  onChange={e =>
-                    setForm({ ...form, maxMarks: e.target.value })
-                  }
-                />
+                  <div>
+                    <label className={styles.label}>Max marks</label>
+                    <input
+                      type="number"
+                      className={styles.input}
+                      value={form.maxMarks}
+                      onChange={e =>
+                        setForm({ ...form, maxMarks: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
 
                 <div className={styles.modalActions}>
                   <button
@@ -217,7 +242,14 @@ export default function Assignments() {
 
             {step === 2 && (
               <>
-                <h2 className={styles.modalTitle}>Assign to students</h2>
+                <div className={styles.headerRow}>
+                  <div>
+                    <div className={styles.modalTitle}>Assign to students</div>
+                    <div className={styles.modalSubtitle}>
+                      Choose which students receive this assignment.
+                    </div>
+                  </div>
+                </div>
 
                 <label className={styles.checkbox}>
                   <input

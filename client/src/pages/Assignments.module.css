@@ -75,6 +75,7 @@
 }
 
 /* MODAL */
+
 .modalBackdrop {
   position: fixed;
   inset: 0;
@@ -86,45 +87,76 @@
 }
 
 .modal {
-  background: white;
-  padding: 28px;
-  border-radius: 18px;
-  width: 420px;
+  width: 520px;
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  border-radius: 28px;
+  padding: 28px 32px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.55);
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
 }
 
 .modalTitle {
   font-size: 20px;
-  margin-bottom: 16px;
-  color: #111827;
+  font-weight: 600;
+  color: #0f172a;
 }
 
-.modal label {
-  display: block;
+.modalSubtitle {
   font-size: 14px;
-  color: #374151;
-  margin-bottom: 6px;
+  color: #64748b;
+  margin-top: 4px;
 }
 
-.modal input,
-.modal textarea {
+.pill {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(250, 204, 21, 0.16);
+  color: #92400e;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.rowFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.input,
+.textarea {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 14px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
   border: 1px solid #d1d5db;
   font-size: 14px;
 }
 
-.modal textarea {
+.textarea {
   resize: none;
-  height: 90px;
+  height: 96px;
 }
 
 .modalActions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 18px;
 }
 
 .checkbox {
@@ -135,3 +167,9 @@
   color: #111827;
 }
 
+/* critical fix */
+.modal input[type='checkbox'] {
+  width: auto;
+  margin-bottom: 0;
+  padding: 0;
+}
