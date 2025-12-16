@@ -1,152 +1,264 @@
-// client/src/pages/Assignments.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import api from '../api/api';
 import NavBar from '../components/NavBar';
 import styles from './Assignments.module.css';
+import { AuthContext } from '../context/AuthContext';
 
 export default function Assignments() {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+
+  const [assignments, setAssignments] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const [form, setForm] = useState({
+    title: '',
+    subject: '',
+    description: '',
+    dueDate: '',
+    maxMarks: ''
+  });
+
+  const [assignAll, setAssignAll] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
-    let mounted = true;
-
-    const load = async () => {
-      try {
-        const res = await api.get('/students');
-        if (!mounted) return;
-
-        const out = [];
-        (res.data || []).forEach((s) => {
-          const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim();
-          (s.assignments || []).forEach((a) => {
-            out.push({
-              id: a._id || `${s._id}-${a.title}`,
-              title: a.title,
-              subject: a.subject,
-              uploadedAt: a.uploadedAt || a.createdAt || null,
-              dueDate: a.dueDate || null,
-              marksObtained:
-                a.marksObtained !== undefined ? a.marksObtained : null,
-              totalMarks: a.totalMarks !== undefined ? a.totalMarks : null,
-              grade: a.grade || null,
-              studentName: fullName,
-              className: s.className,
-              rollNumber: s.rollNumber,
-            });
-          });
-        });
-
-        // sort: latest uploaded first
-        out.sort((a, b) => {
-          const ta = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
-          const tb = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
-          return tb - ta;
-        });
-
-        setRows(out);
-      } catch (e) {
-        setRows([]);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    load();
-    return () => {
-      mounted = false;
-    };
+    fetchAssignments();
+    fetchStudents();
   }, []);
 
-  const fmtDate = (value) => {
-    if (!value) return '—';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '—';
-    return d.toLocaleDateString();
-  };
+  async function fetchAssignments() {
+    const res = await api.get('/assignments');
+    setAssignments(res.data);
+  }
 
-  const fmtMarks = (row) => {
-    if (row.marksObtained == null && row.totalMarks == null && !row.grade) {
-      return '—';
-    }
-    if (row.marksObtained != null && row.totalMarks != null) {
-      return `${row.marksObtained}/${row.totalMarks}`;
-    }
-    if (row.grade) return row.grade;
-    return '—';
-  };
+  async function fetchStudents() {
+    const res = await api.get('/students');
+    setStudents(res.data);
+  }
+
+  function toggleStudent(id) {
+    setSelectedStudents(prev =>
+      prev.includes(id)
+        ? prev.filter(s => s !== id)
+        : [...prev, id]
+    );
+  }
+
+  async function createAssignment() {
+    const studentIds = assignAll
+      ? students.map(s => s._id)
+      : selectedStudents;
+
+    await api.post('/assignments', {
+      ...form,
+      studentIds
+    });
+
+    setShowModal(false);
+    setStep(1);
+    setAssignAll(false);
+    setSelectedStudents([]);
+    setForm({
+      title: '',
+      subject: '',
+      description: '',
+      dueDate: '',
+      maxMarks: ''
+    });
+
+    fetchAssignments();
+  }
+
+  async function deleteAssignment(id) {
+    await api.delete(`/assignments/${id}`);
+    fetchAssignments();
+  }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.shell}>
       <NavBar />
-      <div className={styles.shell}>
-        <div className={styles.headerRow}>
-          <div className={styles.headerTitle}>Assignments</div>
-          <p className={styles.headerSub}>
-            Teachers and parents can see when an assignment was uploaded, its
-            subject and the marks obtained by the student.
+
+      <main className={styles.main}>
+        <section className={styles.card}>
+          <h1 className={styles.title}>Assignments</h1>
+          <p className={styles.subtitle}>
+            Teachers and parents can see assignment details and marks.
           </p>
-        </div>
 
-        <div className={styles.tableShell}>
-          <div className={styles.tableHead}>
-            <div className={styles.headCell}>Student</div>
-            <div className={styles.headCell}>Assignment</div>
-            <div className={`${styles.headCell} ${styles.hideSm}`}>Uploaded</div>
-            <div className={`${styles.headCell} ${styles.hideXs}`}>Due</div>
-            <div className={styles.headCell}>Marks</div>
-          </div>
-
-          {loading ? (
-            <div className={styles.empty}>Loading assignments…</div>
-          ) : rows.length === 0 ? (
-            <div className={styles.empty}>
-              No assignments yet. Create some from the student detail page.
-            </div>
-          ) : (
-            <div className={styles.tableBody}>
-              {rows.map((row) => (
-                <div className={styles.tableRow} key={row.id}>
-                  <div>
-                    <div className={styles.cellPrimary}>{row.studentName}</div>
-                    <div className={styles.cellSub}>
-                      Class {row.className || '—'} · Roll{' '}
-                      {row.rollNumber || '—'}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className={styles.cellPrimary}>{row.title}</div>
-                    <div className={styles.cellSub}>{row.subject || '—'}</div>
-                  </div>
-
-                  <div className={`${styles.cell} ${styles.hideSm}`}>
-                    {fmtDate(row.uploadedAt)}
-                  </div>
-
-                  <div className={`${styles.cell} ${styles.hideXs}`}>
-                    {fmtDate(row.dueDate)}
-                  </div>
-
-                  <div className={styles.cell}>
-                    <span
-                      className={
-                        row.marksObtained == null &&
-                        row.totalMarks == null &&
-                        !row.grade
-                          ? styles.badgePending
-                          : styles.badgeGraded
-                      }
-                    >
-                      {fmtMarks(row)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {user?.role === 'teacher' && (
+            <button
+              className={styles.primaryBtn}
+              onClick={() => setShowModal(true)}
+            >
+              Create assignment
+            </button>
           )}
+
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Assignment</th>
+                <th>Uploaded</th>
+                <th>Due</th>
+                <th>Marks</th>
+                {user?.role === 'teacher' && <th />}
+              </tr>
+            </thead>
+
+            <tbody>
+              {assignments.length === 0 && (
+                <tr>
+                  <td colSpan="6" className={styles.empty}>
+                    No assignments yet.
+                  </td>
+                </tr>
+              )}
+
+              {assignments.map(a => (
+                <tr key={a._id}>
+                  <td>
+                    {a.assignedTo.length === students.length
+                      ? 'All Students'
+                      : a.assignedTo
+                          .map(s => `${s.firstName} ${s.lastName}`)
+                          .join(', ')}
+                  </td>
+                  <td>{a.title}</td>
+                  <td>{new Date(a.createdAt).toLocaleDateString()}</td>
+                  <td>{new Date(a.dueDate).toLocaleDateString()}</td>
+                  <td>—</td>
+
+                  {user?.role === 'teacher' && (
+                    <td>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => deleteAssignment(a._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </main>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modal}>
+            {step === 1 && (
+              <>
+                <h2 className={styles.modalTitle}>Assignment details</h2>
+
+                <label>Title</label>
+                <input
+                  value={form.title}
+                  onChange={e =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                />
+
+                <label>Subject</label>
+                <input
+                  value={form.subject}
+                  onChange={e =>
+                    setForm({ ...form, subject: e.target.value })
+                  }
+                />
+
+                <label>Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={e =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                />
+
+                <label>Due date</label>
+                <input
+                  type="date"
+                  value={form.dueDate}
+                  onChange={e =>
+                    setForm({ ...form, dueDate: e.target.value })
+                  }
+                />
+
+                <label>Max marks</label>
+                <input
+                  type="number"
+                  value={form.maxMarks}
+                  onChange={e =>
+                    setForm({ ...form, maxMarks: e.target.value })
+                  }
+                />
+
+                <div className={styles.modalActions}>
+                  <button
+                    className={styles.cancelBtn}
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className={styles.primaryBtn}
+                    onClick={() => setStep(2)}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <h2 className={styles.modalTitle}>Assign to students</h2>
+
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={assignAll}
+                    onChange={e => setAssignAll(e.target.checked)}
+                  />
+                  Assign to all students
+                </label>
+
+                {!assignAll &&
+                  students.map(s => (
+                    <label key={s._id} className={styles.checkbox}>
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.includes(s._id)}
+                        onChange={() => toggleStudent(s._id)}
+                      />
+                      {s.firstName} {s.lastName}
+                    </label>
+                  ))}
+
+                <div className={styles.modalActions}>
+                  <button
+                    className={styles.cancelBtn}
+                    onClick={() => setStep(1)}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className={styles.primaryBtn}
+                    onClick={createAssignment}
+                  >
+                    Assign
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

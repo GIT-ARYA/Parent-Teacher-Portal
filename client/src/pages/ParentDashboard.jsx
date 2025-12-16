@@ -54,7 +54,6 @@ export default function ParentDashboard() {
       <NavBar />
       <div className={layout.root}>
         <div className={layout.pageShell}>
-          {/* Header */}
           <header className={layout.pageHeader}>
             <div>
               <div className={layout.pageTitle}>
@@ -67,7 +66,6 @@ export default function ParentDashboard() {
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              {/* ✅ NEW BUTTON (SAFE ADDITION) */}
               <button
                 className={layout.primaryBtn}
                 onClick={() => navigate('/messages')}
@@ -81,7 +79,6 @@ export default function ParentDashboard() {
             </div>
           </header>
 
-          {/* Body */}
           <main className={layout.pageBody}>
             <section className={layout.sectionCard}>
               <div className={layout.sectionHeaderRow}>
@@ -96,24 +93,12 @@ export default function ParentDashboard() {
               </div>
 
               {loading ? (
-                <div
-                  style={{
-                    padding: '0.75rem',
-                    fontSize: '0.9rem',
-                    color: '#475569',
-                  }}
-                >
+                <div style={{ padding: '0.75rem', fontSize: '0.9rem' }}>
                   Loading…
                 </div>
               ) : children.length === 0 ? (
-                <div
-                  style={{
-                    padding: '0.75rem',
-                    fontSize: '0.9rem',
-                    color: '#94a3b8',
-                  }}
-                >
-                  No linked student records found for this parent account.
+                <div style={{ padding: '0.75rem', fontSize: '0.9rem' }}>
+                  No linked student records found.
                 </div>
               ) : (
                 <div
@@ -140,53 +125,10 @@ export default function ParentDashboard() {
                         cursor: 'pointer',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div
-                          style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '999px',
-                            background:
-                              'linear-gradient(135deg, #fbbf24 0%, #f97316 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontWeight: 700,
-                          }}
-                        >
-                          {c.firstName?.[0]}
-                          {c.lastName?.[0]}
-                        </div>
-
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              fontWeight: 600,
-                              color: '#0f172a',
-                            }}
-                          >
-                            {c.firstName} {c.lastName}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: '0.8rem',
-                              color: '#64748b',
-                              marginTop: '0.1rem',
-                            }}
-                          >
-                            Class {c.className} · Roll {c.rollNumber}
-                          </div>
-                        </div>
+                      <div style={{ fontWeight: 600 }}>
+                        {c.firstName} {c.lastName}
                       </div>
-
-                      <div
-                        style={{
-                          fontSize: '0.8rem',
-                          color: '#64748b',
-                          marginTop: '0.6rem',
-                        }}
-                      >
+                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                         Assignments: {c.assignments?.length || 0}
                       </div>
                     </button>

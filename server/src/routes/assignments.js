@@ -1,73 +1,89 @@
-// server/src/routes/assignments.js
 const express = require('express');
+const router = express.Router();
 const Assignment = require('../models/Assignment');
 const Student = require('../models/Student');
-const { auth, requireRole } = require('../middleware/auth');
-const router = express.Router();
+const { auth } = require('../middleware/auth');
 
 /**
- * POST /api/assignments
- * Create assignment (teacher/admin)
- * Body: { title, subject, description, assignedTo: [studentIds], dueDate }
- */
-router.post('/', auth, requireRole('teacher'), async (req, res) => {
-  try {
-    const payload = {
-      title: req.body.title,
-      subject: req.body.subject,
-      description: req.body.description,
-      assignedBy: req.user._id,
-      assignedTo: req.body.assignedTo || [],
-      dueDate: req.body.dueDate ? new Date(req.body.dueDate) : undefined
-    };
-    const a = await Assignment.create(payload);
-    // Optionally push assignment id into students.assignments
-    if (payload.assignedTo.length) {
-      await Student.updateMany(
-        { _id: { $in: payload.assignedTo } },
-        { $addToSet: { assignments: a._id } }
-      );
-    }
-    res.json(a);
-  } catch (err) {
-    console.error('Create assignment error', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-/**
- * PATCH /api/assignments/:id/grade
- * Add a grade entry (teacher/admin)
- * Body: { studentId, score, remarks }
- */
-router.patch('/:id/grade', auth, requireRole('teacher'), async (req, res) => {
-  try {
-    const { studentId, score, remarks } = req.body;
-    const a = await Assignment.findById(req.params.id);
-    if (!a) return res.status(404).json({ error: 'Assignment not found' });
-    a.grades.push({ student: studentId, score, remarks });
-    await a.save();
-    res.json(a);
-  } catch (err) {
-    console.error('Grade assignment error', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-/**
- * GET /api/assignments
- * List assignments (optional ?studentId= & ?subject=)
+ * GET assignments
+ * Teacher → all
+ * Parent → only their children
  */
 router.get('/', auth, async (req, res) => {
   try {
-    const q = {};
-    if (req.query.studentId) q.assignedTo = req.query.studentId;
-    if (req.query.subject) q.subject = req.query.subject;
-    const list = await Assignment.find(q).populate('assignedBy', 'name email').populate('assignedTo', 'firstName lastName');
+    if (req.user.role === 'teacher') {
+      const list = await Assignment.find()
+        .populate('assignedTo', 'firstName lastName')
+        .sort({ createdAt: -1 });
+
+      return res.json(list);
+    }
+
+    // Parent
+    const students = await Student.find({
+      parentEmail: req.user.email,
+    }).select('_id');
+
+    const ids = students.map(s => s._id);
+
+    const list = await Assignment.find({
+      assignedTo: { $in: ids },
+    })
+      .populate('assignedTo', 'firstName lastName')
+      .sort({ createdAt: -1 });
+
     res.json(list);
-  } catch (err) {
-    console.error('List assignments error', err);
-    res.status(500).json({ error: 'Server error' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to load assignments' });
+  }
+});
+
+/**
+ * CREATE assignment
+ */
+router.post('/', auth, async (req, res) => {
+  try {
+    const {
+      title,
+      subject,
+      description,
+      dueDate,
+      maxMarks,
+      studentIds,
+    } = req.body;
+
+    const assignment = await Assignment.create({
+      title,
+      subject,
+      description,
+      dueDate,
+      maxMarks,
+      assignedTo: studentIds,
+      createdBy: req.user._id,
+    });
+
+    await Student.updateMany(
+      { _id: { $in: studentIds } },
+      { $addToSet: { assignments: assignment._id } }
+    );
+
+    res.json(assignment);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to create assignment' });
+  }
+});
+
+/**
+ * DELETE assignment
+ */
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    await Assignment.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Delete failed' });
   }
 });
 

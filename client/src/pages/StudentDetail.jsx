@@ -90,6 +90,15 @@ export default function StudentDetail() {
             >
               Schedule meeting
             </button>
+            {user?.role === 'teacher' && (
+  <button
+    className={styles.chip}
+    onClick={() => navigate('/assignments')}
+  >
+    Add assignment
+  </button>
+)}
+
 
             {user?.role === 'teacher' && (
               <button
