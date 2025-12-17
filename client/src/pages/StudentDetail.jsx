@@ -1,4 +1,3 @@
-// client/src/pages/StudentDetail.jsx
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/api';
@@ -19,18 +18,14 @@ export default function StudentDetail() {
     async function load() {
       try {
         const res = await api.get(`/students/${id}`);
-        if (mounted) {
-          setStudent(res.data);
-        }
+        if (mounted) setStudent(res.data);
       } catch (e) {
         console.error(e);
       }
     }
 
     load();
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, [id]);
 
   async function startMessage() {
@@ -39,7 +34,6 @@ export default function StudentDetail() {
         studentId: student._id,
         text: 'Hello',
       });
-
       navigate('/messages');
     } catch (e) {
       console.error(e);
@@ -83,35 +77,27 @@ export default function StudentDetail() {
           </header>
 
           <div className={styles.quickRow}>
-            <button
-              type="button"
-              className={styles.chip}
-              onClick={() => alert('Meeting scheduler coming soon')}
-            >
+            <button className={styles.chip}>
               Schedule meeting
             </button>
-            {user?.role === 'teacher' && (
-  <button
-    className={styles.chip}
-    onClick={() => navigate('/assignments')}
-  >
-    Add assignment
-  </button>
-)}
-
 
             {user?.role === 'teacher' && (
               <button
-                type="button"
                 className={styles.chip}
-                onClick={startMessage}
+                onClick={() => navigate('/assignments')}
               >
+                Add assignment
+              </button>
+            )}
+
+            {user?.role === 'teacher' && (
+              <button className={styles.chip} onClick={startMessage}>
                 Send message
               </button>
             )}
           </div>
 
-          {/* Parent section unchanged */}
+          {/* Parent section (unchanged) */}
           <section className={styles.subPanel}>
             <h2 className={styles.subTitle}>Parent / Guardian</h2>
 
@@ -125,12 +111,51 @@ export default function StudentDetail() {
                 <span>{student.parentEmail}</span>
               </div>
               <div className={styles.tableRow}>
-                <span>Parent password</span>
+                <span>Password</span>
                 <span style={{ fontFamily: 'monospace' }}>
                   {student.parentPassword}
                 </span>
               </div>
             </div>
+          </section>
+
+          {/* ✅ ASSIGNMENTS (NEW, THEME-SAFE) */}
+          <section className={styles.subPanel}>
+            <h2 className={styles.subTitle}>Assignments</h2>
+
+            {!student.assignmentProgress ||
+            student.assignmentProgress.length === 0 ? (
+              <div className={styles.empty}>
+                No assignments assigned yet.
+              </div>
+            ) : (
+              <div className={styles.table}>
+                <div className={styles.tableHead}>
+                  <span>Assignment</span>
+                  <span>Status</span>
+                  <span>Marks</span>
+                  <span>Max</span>
+                </div>
+
+                {student.assignmentProgress.map(ap => (
+                  <div
+                    key={ap.assignment._id}
+                    className={styles.tableRow}
+                  >
+                    <span>{ap.assignment.title}</span>
+                    <span>
+                      {ap.status === 'completed'
+                        ? 'Completed'
+                        : 'Assigned'}
+                    </span>
+                    <span>
+                      {ap.status === 'completed' ? ap.marks : '—'}
+                    </span>
+                    <span>{ap.assignment.maxMarks}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </section>
       </main>

@@ -40,10 +40,14 @@ router.get('/', auth, async (req, res) => {
 });
 
 /**
- * CREATE assignment
+ * CREATE assignment (Teacher only)
  */
 router.post('/', auth, async (req, res) => {
   try {
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const {
       title,
       subject,
@@ -63,9 +67,19 @@ router.post('/', auth, async (req, res) => {
       createdBy: req.user._id,
     });
 
+    // Phase 1 (existing behavior)
     await Student.updateMany(
       { _id: { $in: studentIds } },
-      { $addToSet: { assignments: assignment._id } }
+      {
+        $addToSet: {
+          assignments: assignment._id,
+          // Phase 2 (NEW)
+          assignmentProgress: {
+            assignment: assignment._id,
+            status: 'assigned',
+          },
+        },
+      }
     );
 
     res.json(assignment);
@@ -76,15 +90,82 @@ router.post('/', auth, async (req, res) => {
 });
 
 /**
- * DELETE assignment
+ * DELETE assignment (Teacher only)
  */
 router.delete('/:id', auth, async (req, res) => {
   try {
-    await Assignment.findByIdAndDelete(req.params.id);
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const assignmentId = req.params.id;
+
+    await Assignment.findByIdAndDelete(assignmentId);
+
+    // Cleanup (safe)
+    await Student.updateMany(
+      {},
+      {
+        $pull: {
+          assignments: assignmentId,
+          assignmentProgress: { assignment: assignmentId },
+        },
+      }
+    );
+
     res.json({ ok: true });
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Delete failed' });
   }
 });
+
+/**
+ * PHASE 2: GRADE assignment (Teacher only)
+ */
+router.post('/:id/grade', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const assignmentId = req.params.id;
+    const { grades } = req.body;
+
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    for (const g of grades) {
+      if (g.marks > assignment.maxMarks) {
+        return res.status(400).json({
+          error: `Marks cannot exceed max marks (${assignment.maxMarks})`,
+        });
+      }
+
+      await Student.updateOne(
+        {
+          _id: g.studentId,
+          'assignmentProgress.assignment': assignmentId,
+        },
+        {
+          $set: {
+            'assignmentProgress.$.status': 'completed',
+            'assignmentProgress.$.marks': g.marks,
+            'assignmentProgress.$.gradedAt': new Date(),
+            'assignmentProgress.$.gradedBy': req.user._id,
+          },
+        }
+      );
+    }
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to grade assignment' });
+  }
+});
+
 
 module.exports = router;

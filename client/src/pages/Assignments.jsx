@@ -9,6 +9,8 @@ export default function Assignments() {
 
   const [assignments, setAssignments] = useState([]);
   const [students, setStudents] = useState([]);
+
+  // create assignment (UNCHANGED)
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState(1);
 
@@ -22,6 +24,11 @@ export default function Assignments() {
 
   const [assignAll, setAssignAll] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
+
+  // grading (NEW, isolated)
+  const [gradeModalOpen, setGradeModalOpen] = useState(false);
+  const [gradingAssignment, setGradingAssignment] = useState(null);
+  const [grades, setGrades] = useState({});
 
   useEffect(() => {
     fetchAssignments();
@@ -73,6 +80,36 @@ export default function Assignments() {
 
   async function deleteAssignment(id) {
     await api.delete(`/assignments/${id}`);
+    fetchAssignments();
+  }
+
+  /* ===== GRADING ===== */
+
+  function openGradeModal(assignment) {
+    setGradingAssignment(assignment);
+    setGrades({});
+    setGradeModalOpen(true);
+  }
+
+  function closeGradeModal() {
+    setGradeModalOpen(false);
+    setGradingAssignment(null);
+    setGrades({});
+  }
+
+  function updateMarks(studentId, value) {
+    setGrades(prev => ({ ...prev, [studentId]: value }));
+  }
+
+  async function submitGrades() {
+    await api.post(`/assignments/${gradingAssignment._id}/grade`, {
+      grades: Object.entries(grades).map(([studentId, marks]) => ({
+        studentId,
+        marks: Number(marks),
+      })),
+    });
+
+    closeGradeModal();
     fetchAssignments();
   }
 
@@ -134,6 +171,13 @@ export default function Assignments() {
                   {user?.role === 'teacher' && (
                     <td>
                       <button
+                        className={styles.primaryBtn}
+                        style={{ marginRight: 8 }}
+                        onClick={() => openGradeModal(a)}
+                      >
+                        Grade
+                      </button>
+                      <button
                         className={styles.deleteBtn}
                         onClick={() => deleteAssignment(a._id)}
                       >
@@ -148,10 +192,11 @@ export default function Assignments() {
         </section>
       </main>
 
-      {/* MODAL */}
+      {/* ================= CREATE ASSIGNMENT MODAL (UNCHANGED) ================= */}
       {showModal && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modal}>
+            {/* EXACTLY your original modal code — untouched */}
             {step === 1 && (
               <>
                 <div className={styles.headerRow}>
@@ -291,6 +336,59 @@ export default function Assignments() {
           </div>
         </div>
       )}
+
+      {/* ================= GRADE MODAL (NEW, SEPARATE) ================= */}
+      {gradeModalOpen && gradingAssignment && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modal}>
+            <div className={styles.headerRow}>
+              <div>
+                <div className={styles.modalTitle}>Grade assignment</div>
+                <div className={styles.modalSubtitle}>
+                  {gradingAssignment.title}
+                </div>
+              </div>
+              <div className={styles.pill}>Grade</div>
+            </div>
+
+            {gradingAssignment.assignedTo.map(s => (
+              <div
+                key={s._id}
+                className={styles.gradeRow}
+              >
+                <span>
+                  {s.firstName} {s.lastName}
+                </span>
+                <input
+                  type="number"
+                  className={styles.input}
+                  style={{ width: 120 }}
+                  value={grades[s._id] ?? ''}
+                  onChange={e =>
+                    updateMarks(s._id, e.target.value)
+                  }
+                />
+              </div>
+            ))}
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={closeGradeModal}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.primaryBtn}
+                onClick={submitGrades}
+              >
+                Save marks
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+  

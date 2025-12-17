@@ -173,3 +173,11 @@
   margin-bottom: 0;
   padding: 0;
 }
+/* ===== Grade modal rows (NEW) ===== */
+.gradeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #111; /* ← FIX: force readable text */
+}
