@@ -2,13 +2,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
-import Dashboard from './pages/DashBoard';
+import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
-import StudentDetail from './pages/Studentdetail';
+import StudentDetail from './pages/StudentDetail';
 import Messages from './pages/Messages';
 import { AuthProvider } from './context/AuthContext';
 import Assignments from './pages/Assignments';
 import ParentDashboard from './pages/ParentDashboard'; 
+import Meetings from './pages/Meetings';
 
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/assignments" element={<Assignments />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
+          <Route path="/meetings" element={<Meetings />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

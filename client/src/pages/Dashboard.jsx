@@ -43,9 +43,10 @@ export default function Dashboard() {
 
     async function loadStats() {
       try {
-        const [studentsRes, assignmentsRes] = await Promise.all([
+        const [studentsRes, assignmentsRes, meetingsRes] = await Promise.all([
           api.get('/students'),
           api.get('/assignments').catch(() => ({ data: [] })),
+          api.get('/meetings').catch(() => ({ data: [] })),
         ]);
 
         if (cancelled) return;
@@ -58,10 +59,14 @@ export default function Dashboard() {
           ? assignmentsRes.data.length
           : 0;
 
+        const meetingsCount = Array.isArray(meetingsRes.data)
+          ? meetingsRes.data.filter((m) => m.status === 'scheduled').length
+          : 0;
+
         setStats({
           students: studentsCount,
           assignments: assignmentsCount,
-          meetings: 0,
+          meetings: meetingsCount,
           loading: false,
         });
       } catch (e) {
@@ -169,7 +174,7 @@ export default function Dashboard() {
             <button
               type="button"
               className={styles.chipButtonGhost}
-              onClick={() => alert('Meeting scheduler coming soon')}
+              onClick={() => navigate('/meetings')}
             >
               Schedule meeting
             </button>
