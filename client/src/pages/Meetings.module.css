@@ -12,14 +12,6 @@
   padding: 0.6rem 0.75rem;
   font-size: 0.9rem;
   background: #fff;
-  color: #0f172a;
-  color-scheme: light;
-}
-
-.formGrid input::placeholder,
-.formGrid textarea::placeholder {
-  color: #64748b;
-  opacity: 1;
 }
 
 .primaryBtn {

@@ -63,12 +63,6 @@ export default function Meetings() {
     return [...meetings].sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
   }, [meetings]);
 
-  const minDateTime = useMemo(() => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
-  }, []);
-
   async function createMeeting(e) {
     e.preventDefault();
     if (!form.studentId || !form.title.trim() || !form.startsAt) return;
@@ -95,7 +89,7 @@ export default function Meetings() {
       }));
     } catch (err) {
       console.error('Create meeting failed', err);
-      alert(err?.response?.data?.error || 'Could not schedule meeting.');
+      alert('Could not schedule meeting.');
     } finally {
       setSaving(false);
     }
@@ -156,7 +150,6 @@ export default function Meetings() {
                   type="datetime-local"
                   value={form.startsAt}
                   onChange={(e) => setForm((prev) => ({ ...prev, startsAt: e.target.value }))}
-                  min={minDateTime}
                   required
                 />
 

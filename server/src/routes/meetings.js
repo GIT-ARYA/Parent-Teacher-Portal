@@ -51,15 +51,6 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ error: 'studentId, title and startsAt are required' });
     }
 
-    const parsedStartsAt = new Date(startsAt);
-    if (Number.isNaN(parsedStartsAt.getTime())) {
-      return res.status(400).json({ error: 'Invalid startsAt value' });
-    }
-
-    if (parsedStartsAt < new Date()) {
-      return res.status(400).json({ error: 'Meeting time cannot be in the past' });
-    }
-
     const student = await Student.findById(studentId);
     if (!canAccessStudent(req.user, student)) {
       return res.status(403).json({ error: 'Forbidden' });
@@ -69,7 +60,7 @@ router.post('/', auth, async (req, res) => {
       student: studentId,
       title,
       agenda,
-      startsAt: parsedStartsAt,
+      startsAt,
       durationMinutes,
       meetingLink,
       createdBy: req.user._id,
