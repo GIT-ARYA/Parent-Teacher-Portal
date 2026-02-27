@@ -73,6 +73,13 @@ export default function ParentDashboard() {
                 Messages
               </button>
 
+              <button
+                className={layout.primaryBtn}
+                onClick={() => navigate('/meetings')}
+              >
+                Meetings
+              </button>
+
               <span className={layout.rolePill}>
                 Parent view
               </span>

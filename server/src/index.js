@@ -11,7 +11,7 @@ const studentRoutes = require('./routes/students');
 const assignmentRoutes = require('./routes/assignments');
 const messageRoutes = require('./routes/messages');
 const userRoutes = require('./routes/users');
-
+const meetingRoutes = require('./routes/meetings');
 
 const { auth } = require('./middleware/auth'); // require auth AFTER models/routes are set up if needed
 
@@ -27,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/meetings', meetingRoutes);
 
 // simple protected test route — must come after `app` is defined
 app.get('/api/test', auth, (req, res) => {
